@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Secret Game</title>
+
+    <style>
+      * {
+        box-sizing: border-box;
+        font-family: "Segoe UI", sans-serif;
+      }
+
+      body {
+        margin: 0;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: linear-gradient(135deg, #ff9ecb, #caa6ff);
+        overflow: hidden;
+      }
+
+      .container {
+        background: white;
+        width: 90%;
+        max-width: 420px;
+        padding: 35px;
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        text-align: center;
+        animation: fadeIn 1s;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      h1,
+      h2,
+      h3 {
+        margin-bottom: 10px;
+      }
+
+      p {
+        color: #666;
+      }
+
+      button {
+        border: none;
+        padding: 12px 22px;
+        margin: 10px;
+        border-radius: 30px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: 0.3s;
+      }
+
+      button:hover {
+        transform: scale(1.05);
+      }
+
+      .primary {
+        background: #ff4fa3;
+        color: white;
+      }
+
+      .option {
+        background: #f3f3f3;
+        width: 100%;
+        display: block;
+      }
+
+      .progress {
+        height: 10px;
+        background: #eee;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        overflow: hidden;
+      }
+
+      .bar {
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(90deg, #ff4fa3, #c07cff);
+        transition: 0.4s;
+      }
+
+      .hidden {
+        display: none;
+      }
+
+      #yesBtn {
+        background: #4caf50;
+        color: white;
+      }
+
+      #maybeBtn {
+        background: #ffb84d;
+        color: white;
+      }
+
+      #noBtn {
+        background: #ff7b7b;
+        color: white;
+        position: relative;
+      }
+
+      .hearts {
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        pointer-events: none;
+        overflow: hidden;
+      }
+
+      .heart {
+        position: absolute;
+        font-size: 24px;
+        animation: float 6s linear infinite;
+        opacity: 0.8;
+      }
+
+      @keyframes float {
+        0% {
+          transform: translateY(100vh);
+          opacity: 1;
+        }
+        100% {
+          transform: translateY(-10vh);
+          opacity: 0;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <div id="start">
+        <h2>Hi ကောင်မလေး💌</h2>
+        <p>
+          I made a small game just for you.<br />
+          Finish it to discover a secret.
+        </p>
+        <button class="primary" onclick="startGame()">Start Game</button>
+      </div>
+
+      <div id="quiz" class="hidden">
+        <div class="progress">
+          <div class="bar" id="bar"></div>
+        </div>
+
+        <h3 id="question"></h3>
+
+        <div id="answers"></div>
+      </div>
+
+      <div id="finish" class="hidden">
+        <h2>You completed the game 🎉</h2>
+        <p>I have one real question...</p>
+
+        <button class="primary" onclick="showConfession()">Continue</button>
+      </div>
+
+      <div id="confession" class="hidden">
+        <h2>Would you like to go on a date with me? ❤️</h2>
+
+        <button id="yesBtn" onclick="yes()">YES 😊</button>
+        <button id="maybeBtn" onclick="maybe()">Maybe 🤔</button>
+        <button id="noBtn">No 😅</button>
+
+        <p id="result"></p>
+      </div>
+    </div>
+
+    <div class="hearts" id="hearts"></div>
+
+    <script>
+      const questions = [
+        {
+          q: "Which coffee do I like the most?",
+          a: ["Latte", "Cappuccino", "Black Coffee ☕"],
+        },
+        {
+          q: "Best place for relaxing?",
+          a: ["Cafe ☕", "Cinema 🎬", "Park 🌿"],
+        },
+        {
+          q: "Favorite weekend activity?",
+          a: ["Movies", "Travel", "Sleeping"],
+        },
+        {
+          q: "Which emoji is cutest?",
+          a: ["😊", "❤️", "😆"],
+        },
+      ];
+
+      let current = 0;
+
+      function startGame() {
+        document.getElementById("start").classList.add("hidden");
+        document.getElementById("quiz").classList.remove("hidden");
+
+        showQuestion();
+      }
+
+      function showQuestion() {
+        let q = questions[current];
+
+        document.getElementById("question").innerText = q.q;
+
+        let html = "";
+
+        q.a.forEach((ans) => {
+          html += `<button class="option" onclick="next()">${ans}</button>`;
+        });
+
+        document.getElementById("answers").innerHTML = html;
+
+        document.getElementById("bar").style.width =
+          (current / questions.length) * 100 + "%";
+      }
+
+      function next() {
+        current++;
+
+        if (current < questions.length) {
+          showQuestion();
+        } else {
+          document.getElementById("quiz").classList.add("hidden");
+          document.getElementById("finish").classList.remove("hidden");
+        }
+      }
+
+      function showConfession() {
+        document.getElementById("finish").classList.add("hidden");
+        document.getElementById("confession").classList.remove("hidden");
+      }
+
+      function yes() {
+        document.getElementById("result").innerHTML =
+          "You just made my day ❤️ Let's go get coffee together!";
+        launchHearts();
+      }
+
+      function maybe() {
+        document.getElementById("result").innerHTML =
+          "I'll take that as hope 😄";
+      }
+
+      const noBtn = document.getElementById("noBtn");
+
+      noBtn.addEventListener("mouseover", () => {
+        let x = Math.random() * 200 - 100;
+        let y = Math.random() * 200 - 100;
+
+        noBtn.style.transform = `translate(${x}px,${y}px)`;
+      });
+
+      function launchHearts() {
+        const container = document.getElementById("hearts");
+
+        for (let i = 0; i < 25; i++) {
+          let heart = document.createElement("div");
+
+          heart.className = "heart";
+          heart.innerHTML = "❤️";
+
+          heart.style.left = Math.random() * 100 + "%";
+          heart.style.fontSize = 20 + Math.random() * 20 + "px";
+
+          container.appendChild(heart);
+
+          setTimeout(() => {
+            heart.remove();
+          }, 6000);
+        }
+      }
+    </script>
+  </body>
+</html>
